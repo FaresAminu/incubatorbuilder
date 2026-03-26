@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate AI Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/knn-classifier@1.2.4/dist/knn-classifier.min.js"></script>
+    <style>
+        body { 
+            background: radial-gradient(circle at 50% 0%, #1e293b 0%, #020617 100%); 
+            color: #f8fafc; 
+            font-family: 'Inter', system-ui, sans-serif; 
+            min-height: 100vh;
+        }
+        .glass { 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.2); 
+            border-radius: 1.5rem; 
+            padding: 2.5rem; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .glow-text {
+            background: linear-gradient(to right, #22d3ee, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .thumb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 0.75rem; max-height: 140px; overflow-y: auto; margin-top: 1.5rem;}
+        .thumb-grid img { width: 100%; height: 60px; object-fit: cover; border-radius: 0.75rem; border: 2px solid #334155; transition: transform 0.2s; }
+        .thumb-grid img:hover { transform: scale(1.1); border-color: #22d3ee; }
+        input { background: rgba(2, 6, 23, 0.5); border: 1px solid #334155; color: white; padding: 0.75rem 1rem; border-radius: 0.75rem; width: 100%; outline: none; margin-top: 0.5rem; transition: all 0.3s; }
+        input:focus { border-color: #22d3ee; box-shadow: 0 0 15px rgba(34, 211, 238, 0.2); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #22d3ee; }
+    </style>
+</head>
+<body class="p-4 md:p-8 max-w-6xl mx-auto flex flex-col justify-between">
+
+    <main>
+        <div class="flex flex-col md:flex-row justify-between items-center mb-10 border-b border-slate-800 pb-6">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-black glow-text tracking-tight">AI MASTER ENGINE</h1>
+            </div>
+            <div id="status" class="mt-4 md:mt-0 px-6 py-2 bg-slate-900 text-amber-400 rounded-full text-sm font-mono tracking-widest border border-amber-500/30 animate-pulse shadow-[0_0_15px_rgba(251,191,36,0.2)]">
+                INITIALIZING CORE...
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+            <div class="glass space-y-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                <h2 class="text-2xl font-black text-white flex items-center gap-3"><span class="text-cyan-400">01</span> Architecture Details</h2>
+                
+                <div>
+                    <label class="text-xs text-cyan-500 uppercase font-black tracking-widest">Application Title</label>
+                    <input type="text" id="app-title" value="Advanced Vision Classifier">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-xs text-slate-400 uppercase font-black tracking-widest">Class 1 Name</label>
+                        <input type="text" id="c1-name" value="Category Alpha">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 uppercase font-black tracking-widest">Class 1 Emoji</label>
+                        <input type="text" id="c1-emoji" value="✨">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-xs text-slate-400 uppercase font-black tracking-widest">Class 2 Name</label>
+                        <input type="text" id="c2-name" value="Category Beta">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 uppercase font-black tracking-widest">Class 2 Emoji</label>
+                        <input type="text" id="c2-emoji" value="🔮">
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -ml-10 -mb-10"></div>
+                <h2 class="text-2xl font-black text-white mb-6 flex items-center gap-3"><span class="text-indigo-400">02</span> Neural Datasets</h2>
+                
+                <div class="mb-6 z-10">
+                    <button onclick="document.getElementById('upload-1').click()" class="w-full bg-slate-900/50 hover:bg-cyan-950/50 text-cyan-400 font-bold py-4 rounded-xl border border-cyan-500/30 transition duration-300 shadow-[0_0_10px_rgba(34,211,238,0.1)] hover:shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+                        + INGEST DATASET ALPHA
+                    </button>
+                    <input type="file" id="upload-1" multiple accept="image/*" class="hidden" onchange="handleUpload(event, 0)">
+                    <div id="grid-0" class="thumb-grid"></div>
+                </div>
+
+                <div class="z-10">
+                    <button onclick="document.getElementById('upload-2').click()" class="w-full bg-slate-900/50 hover:bg-indigo-950/50 text-indigo-400 font-bold py-4 rounded-xl border border-indigo-500/30 transition duration-300 shadow-[0_0_10px_rgba(129,140,248,0.1)] hover:shadow-[0_0_20px_rgba(129,140,248,0.2)]">
+                        + INGEST DATASET BETA
+                    </button>
+                    <input type="file" id="upload-2" multiple accept="image/*" class="hidden" onchange="handleUpload(event, 1)">
+                    <div id="grid-1" class="thumb-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-6 mb-12">
+            <button id="btn-train" onclick="trainModel()" class="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black py-5 rounded-2xl text-xl shadow-[0_10px_30px_rgba(8,145,178,0.3)] transition transform hover:-translate-y-1">
+                ⚡ COMPILE NEURAL NETWORK
+            </button>
+            <button id="btn-export" onclick="exportApp()" class="flex-1 bg-slate-800 text-slate-500 font-black py-5 rounded-2xl text-xl transition cursor-not-allowed border border-slate-700" disabled>
+                📥 DEPLOY EXECUTABLE
+            </button>
+        </div>
+    </main>
+
+    <footer class="text-center pb-8 pt-4 border-t border-slate-800/50">
+        <p class="text-xs font-black tracking-[0.3em] text-slate-500 uppercase">
+            DEVELOPED AND ENGINEERED BY <span class="text-cyan-400 glow-text">[Dr. Mohamed Amine FARES, HSSA El Oued]</span>
+        </p>
+    </footer>
+
+<script>
+    let classifier, mobilenetModule;
+    const trainingImages = { 0: [], 1: [] };
+    let serializedWeights = ""; 
+
+    async function init() {
+        classifier = knnClassifier.create();
+        mobilenetModule = await mobilenet.load({version: 2, alpha: 1.0});
+        const stat = document.getElementById('status');
+        stat.innerText = "SYSTEM READY ✓";
+        stat.className = "mt-4 md:mt-0 px-6 py-2 bg-emerald-950/50 text-emerald-400 rounded-full text-sm font-mono tracking-widest border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.2)]";
+    }
+    init();
+
+    function handleUpload(event, classId) {
+        const files = event.target.files;
+        const grid = document.getElementById(`grid-${classId}`);
+        for (let i = 0; i < files.length; i++) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let img = document.createElement("img");
+                img.src = e.target.result;
+                grid.appendChild(img);
+                img.onload = () => trainingImages[classId].push(img);
+            }
+            reader.readAsDataURL(files[i]);
+        }
+    }
+
+    async function trainModel() {
+        if(trainingImages[0].length === 0 || trainingImages[1].length === 0) {
+            alert("Upload images to both classes to compile the network!"); return;
+        }
+        
+        const btn = document.getElementById('btn-train');
+        btn.innerText = "⚙️ EXTRACTING FEATURES...";
+        
+        await new Promise(r => setTimeout(r, 50)); 
+        
+        for (let img of trainingImages[0]) {
+            const activation = mobilenetModule.infer(img, true);
+            classifier.addExample(activation, 0);
+        }
+        for (let img of trainingImages[1]) {
+            const activation = mobilenetModule.infer(img, true);
+            classifier.addExample(activation, 1);
+        }
+
+        let dataset = classifier.getClassifierDataset();
+        let datasetObj = {};
+        Object.keys(dataset).forEach((key) => {
+            let tensor = dataset[key];
+            datasetObj[key] = {
+                data: Array.from(tensor.dataSync()),
+                shape: tensor.shape
+            };
+        });
+        serializedWeights = JSON.stringify(datasetObj);
+
+        btn.innerText = "✅ NETWORK COMPILED";
+        btn.className = "flex-1 bg-emerald-600/80 text-white font-black py-5 rounded-2xl text-xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] border border-emerald-500/50";
+        
+        const expBtn = document.getElementById('btn-export');
+        expBtn.disabled = false;
+        expBtn.className = "flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black py-5 rounded-2xl text-xl shadow-[0_10px_30px_rgba(99,102,241,0.4)] transition transform hover:-translate-y-1 cursor-pointer animate-pulse";
+    }
+
+    function exportApp() {
+        const appTitle = document.getElementById('app-title').value;
+        const c1Name = document.getElementById('c1-name').value;
+        const c1Emoji = document.getElementById('c1-emoji').value;
+        const c2Name = document.getElementById('c2-name').value;
+        const c2Emoji = document.getElementById('c2-emoji').value;
+
+        // FANCY EXPORTED APP ATTRIBUTION (Change this text inside the template string!)
+        const exportedHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>${appTitle} | Engineered App</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/knn-classifier@1.2.4/dist/knn-classifier.min.js"><\/script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --cat-color: #ff6b9d; --dog-color: #4ecdc4; --bg-dark: #0f0f1a; --bg-card: #1a1a2e; --bg-card2: #16213e; --text-primary: #ffffff; --text-secondary: #a0a0b0; --accent: #7c3aed; --accent2: #06b6d4; --border: rgba(255,255,255,0.1); --shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg-dark); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.15) 0%, transparent 50%), radial-gradient(ellipse at 50% 80%, rgba(255,107,157,0.1) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; display: flex; flex-col justify-between; min-height: 100vh;}
+        .main-content { flex-grow: 1; }
+        header { text-align: center; padding: 40px 0 30px; }
+        .logo { font-size: 4rem; margin-bottom: 10px; animation: float 3s ease-in-out infinite; display: inline-block; }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 800; background: linear-gradient(135deg, #7c3aed, #06b6d4, #ff6b9d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
+        .subtitle { color: var(--text-secondary); font-size: 1rem; letter-spacing: 0.5px; }
+        .status-bar { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0; padding: 12px 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 50px; font-size: 0.9rem; width: fit-content; margin: 20px auto; transition: all 0.3s ease; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #fbbf24; animation: pulse 1.5s ease-in-out infinite; }
+        .status-dot.ready { background: #10b981; animation: none; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+        .main-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; padding: 30px; box-shadow: var(--shadow); margin-bottom: 40px; }
+        .upload-area { border: 2px dashed rgba(124,58,237,0.5); border-radius: 20px; padding: 50px 30px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: rgba(124,58,237,0.05); position: relative; overflow: hidden; }
+        .upload-area:hover { border-color: var(--accent); transform: scale(1.01); box-shadow: 0 0 30px rgba(124,58,237,0.2); }
+        .upload-icon { font-size: 3.5rem; margin-bottom: 15px; display: block; }
+        .upload-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; color: var(--text-primary); }
+        .upload-subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px; }
+        #fileInput { display: none; }
+        .preview-section { display: none; margin-top: 25px; }
+        .preview-section.visible { display: block; animation: slideUp 0.4s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .preview-container { position: relative; border-radius: 16px; overflow: hidden; background: var(--bg-card2); max-height: 400px; display: flex; align-items: center; justify-content: center; }
+        #previewImage { max-width: 100%; max-height: 400px; object-fit: contain; display: block; border-radius: 16px; }
+        .btn-analyze { width: 100%; padding: 16px; margin-top: 20px; background: linear-gradient(135deg, #7c3aed, #06b6d4); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(124,58,237,0.4); display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-analyze:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,58,237,0.5); }
+        .results-section { display: none; margin-top: 25px; }
+        .results-section.visible { display: block; animation: slideUp 0.5s ease; }
+        .result-header { text-align: center; margin-bottom: 25px; }
+        .result-animal { font-size: 5rem; display: block; margin-bottom: 10px; animation: bounceIn 0.6s ease; }
+        @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+        .result-label { font-size: 2rem; font-weight: 800; margin-bottom: 5px; }
+        .result-label.cat { color: var(--cat-color); } .result-label.dog { color: var(--dog-color); }
+        .result-confidence-text { color: var(--text-secondary); font-size: 0.95rem; }
+        .confidence-bars { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
+        .confidence-item { background: var(--bg-card2); border-radius: 12px; padding: 16px 20px; border: 1px solid var(--border); }
+        .confidence-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .confidence-name { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 1rem; }
+        .confidence-percent { font-weight: 700; font-size: 1.1rem; }
+        .bar-track { height: 10px; background: rgba(255,255,255,0.1); border-radius: 50px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 50px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; }
+        .bar-fill.cat { background: linear-gradient(90deg, #ff6b9d, #ff8fab); }
+        .bar-fill.dog { background: linear-gradient(90deg, #4ecdc4, #06b6d4); }
+        .btn-retry { width: 100%; padding: 14px; margin-top: 20px; background: transparent; color: var(--text-primary); border: 2px solid var(--border); border-radius: 14px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .btn-retry:hover { border-color: var(--accent); background: rgba(124,58,237,0.1); transform: translateY(-1px); }
+        footer { text-align: center; padding: 30px 0 10px 0; color: var(--text-secondary); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: auto; }
+        .custom-credit { font-weight: 900; letter-spacing: 2px; text-transform: uppercase; background: linear-gradient(135deg, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 0.9rem;}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="main-content">
+        <header>
+            <div class="logo">⚡</div>
+            <h1>${appTitle}</h1>
+            <div class="subtitle">Embedded Neural Network Engine</div>
+        </header>
+        <div class="status-bar"><div class="status-dot" id="statusDot"></div><span id="statusText">Loading AI Engine...</span></div>
+        
+        <div class="main-card">
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <span class="upload-icon">📸</span>
+                <div class="upload-title">Drop Target Data Here</div>
+                <div class="upload-subtitle">Click to select an image for AI analysis</div>
+                <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
+            </div>
+            <div class="preview-section" id="previewSection">
+                <div class="preview-container"><img id="previewImage" alt="Preview"></div>
+                <button class="btn-analyze" id="analyzeBtn" onclick="analyzeImage()">INITIATE ANALYSIS</button>
+            </div>
+            <div class="results-section" id="resultsSection">
+                <div class="result-header">
+                    <span class="result-animal" id="resultAnimal">--</span>
+                    <div class="result-label" id="resultLabel">--</div>
+                    <div class="result-confidence-text" id="resultConfidenceText">--</div>
+                </div>
+                <div class="confidence-bars">
+                    <div class="confidence-item">
+                        <div class="confidence-label">
+                            <span class="confidence-name">${c1Emoji} ${c1Name}</span>
+                            <span class="confidence-percent cat" id="catPercent">0%</span>
+                        </div>
+                        <div class="bar-track"><div class="bar-fill cat" id="catBar"></div></div>
+                    </div>
+                    <div class="confidence-item">
+                        <div class="confidence-label">
+                            <span class="confidence-name">${c2Emoji} ${c2Name}</span>
+                            <span class="confidence-percent dog" id="dogPercent">0%</span>
+                        </div>
+                        <div class="bar-track"><div class="bar-fill dog" id="dogBar"></div></div>
+                    </div>
+                </div>
+                <button class="btn-retry" onclick="resetApp()">SCAN NEW DATA</button>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <span class="custom-credit">DEVELOPED AND ENGINEERED BY [Dr. Mohamed Amine FARES, HSSA El Oued]</span><br><br>
+        Powered by TensorFlow.js • Offline Capable
+    </footer>
+</div>
+
+<script>
+    const APP_DATA = { c1: "${c1Name}", c1E: "${c1Emoji}", c2: "${c2Name}", c2E: "${c2Emoji}" };
+    const rawWeights = ${serializedWeights};
+    
+    let model, classifier;
+    let currentImageElement = null;
+
+    window.addEventListener('load', async () => {
+        try {
+            model = await mobilenet.load({version: 2, alpha: 1.0});
+            classifier = knnClassifier.create();
+            
+            const dataset = {};
+            Object.keys(rawWeights).forEach(classId => {
+                const arr = rawWeights[classId].data;
+                const shape = rawWeights[classId].shape; 
+                dataset[classId] = tf.tensor2d(arr, shape);
+            });
+            classifier.setClassifierDataset(dataset);
+            
+            document.getElementById('statusDot').classList.add('ready');
+            document.getElementById('statusText').innerText = "AI Engine Online ✓";
+        } catch(e) {
+            document.getElementById('statusText').innerText = "Engine Error";
+            console.error("Initialization Error:", e);
+        }
+    });
+
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.getElementById('previewImage');
+            img.onload = () => {
+                currentImageElement = img;
+                document.getElementById('previewSection').classList.add('visible');
+                document.getElementById('uploadArea').style.display = 'none';
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function analyzeImage() {
+        if(!classifier || classifier.getNumClasses() === 0) {
+            alert("The AI engine is still booting up!");
+            return;
+        }
+        const btn = document.getElementById('analyzeBtn');
+        btn.disabled = true;
+        btn.innerText = "PROCESSING DATA TENSORS...";
+
+        try {
+            const activation = model.infer(currentImageElement, true);
+            const result = await classifier.predictClass(activation);
+            displayResults(result);
+        } catch(error) {
+            console.error("Inference Error:", error);
+            alert("Analysis failed. See console.");
+        }
+        
+        btn.disabled = false;
+        btn.innerText = "INITIATE ANALYSIS";
+    }
+
+    function displayResults(result) {
+        const resultsSection = document.getElementById('resultsSection');
+        const animalEl = document.getElementById('resultAnimal');
+        const labelEl = document.getElementById('resultLabel');
+        const confTextEl = document.getElementById('resultConfidenceText');
+
+        let c1Conf = result.confidences['0'] || 0;
+        let c2Conf = result.confidences['1'] || 0;
+
+        if (result.label === '0' || result.label === 0) {
+            animalEl.textContent = APP_DATA.c1E;
+            labelEl.textContent = "It's " + APP_DATA.c1 + "!";
+            labelEl.className = 'result-label cat';
+            confTextEl.textContent = "Probability: " + (c1Conf * 100).toFixed(1) + "%";
+        } else {
+            animalEl.textContent = APP_DATA.c2E;
+            labelEl.textContent = "It's " + APP_DATA.c2 + "!";
+            labelEl.className = 'result-label dog';
+            confTextEl.textContent = "Probability: " + (c2Conf * 100).toFixed(1) + "%";
+        }
+
+        const c1Pct = (c1Conf * 100).toFixed(1);
+        const c2Pct = (c2Conf * 100).toFixed(1);
+
+        document.getElementById('catPercent').textContent = c1Pct + '%';
+        document.getElementById('dogPercent').textContent = c2Pct + '%';
+
+        setTimeout(() => {
+            document.getElementById('catBar').style.width = c1Pct + '%';
+            document.getElementById('dogBar').style.width = c2Pct + '%';
+        }, 100);
+
+        resultsSection.classList.add('visible');
+    }
+
+    function resetApp() {
+        document.getElementById('previewImage').src = '';
+        document.getElementById('previewSection').classList.remove('visible');
+        document.getElementById('resultsSection').classList.remove('visible');
+        document.getElementById('uploadArea').style.display = 'block';
+        document.getElementById('fileInput').value = '';
+        document.getElementById('catBar').style.width = '0%';
+        document.getElementById('dogBar').style.width = '0%';
+        currentImageElement = null;
+    }
+<\/script>
+</body>
+</html>`;
+
+        let blob = new Blob([exportedHTML], {type: "text/html"});
+        let a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "index.html"; 
+        a.click();
+    }
+</script>
+</body>
+</html>
